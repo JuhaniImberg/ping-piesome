@@ -2,6 +2,7 @@
 
 import math
 import os
+import sys
 import subprocess
 import copy
 import time
@@ -57,9 +58,10 @@ def ping(host, timeout=1):
     ]
     ping = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=DEVNULL)
     out, _ = ping.communicate()
+    print(out)
     if ping.returncode != 0:
         return -1
-    rtt = math.floor(float(str(out).split("\n")[-1].split("/")[-2]))
+    rtt = math.floor(float(str(out).split("\n")[-1 if sys.version_info[0] == 3 else -2].split("/")[-2]))
     return rtt
 
 @get("/")
@@ -78,6 +80,7 @@ def route_ping_all():
         for name in group:
             def outer(name, group):
                 def save(ret):
+                    print(ret)
                     group[name]["rtt"] = ret
                 pool.apply_async(ping, args=[group[name]["host"]], callback=save)
             outer(name, group)
