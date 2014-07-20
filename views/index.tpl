@@ -15,6 +15,7 @@
             <li>
                 {{ name }}
                 <span class="status" data-group="{{ group_name }}" data-name="{{ name }}"></span>
+                <span class="rtt" data-group="{{ group_name }}" data-name="{{ name }}"></span>
             </li>
             %end
         </ul>

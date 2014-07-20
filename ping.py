@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import math
 import os
 import subprocess
 import copy
@@ -46,17 +47,20 @@ DEVNULL = open(os.devnull, 'wb')
 
 
 def ping(host, timeout=1):
-    ping = subprocess.Popen([
-                                "ping",
-                                ("-c" if os.name == "posix" else "-n"),
-                                "1",
-                                "-w",
-                                str(timeout * (1 if os.name == "posix" else 1000)),
-                                host
-                            ], stdout=DEVNULL, stderr=DEVNULL
-                            )
-    return ping.wait() == 0
-
+    args = [
+        "ping",
+        "-c",
+        "1",
+        "-w",
+        str(timeout),
+        host
+    ]
+    ping = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=DEVNULL)
+    out, _ = ping.communicate()
+    if ping.returncode != 0:
+        return -1
+    rtt = math.floor(float(str(out).split("\n")[-1].split("/")[-2]))
+    return rtt
 
 @get("/")
 def route_index():
@@ -74,7 +78,7 @@ def route_ping_all():
         for name in group:
             def outer(name, group):
                 def save(ret):
-                    group[name]["status"] = ret
+                    group[name]["rtt"] = ret
                 pool.apply_async(ping, args=[group[name]["host"]], callback=save)
             outer(name, group)
 
@@ -94,6 +98,6 @@ def route_style():
 
 
 if __name__ == "__main__":
-    run(host='0.0.0.0', port=80)
+    run(host='0.0.0.0', port=8080)
 
 app = default_app()

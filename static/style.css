@@ -61,6 +61,24 @@ body {
     content: '─';
 }
 
+.rtt {
+    display: inline-block;
+    height: 1.4em;
+    padding: 0.1em;
+    padding-right: 0.5em;
+    color: #999;
+    float: right;
+    display: none;
+}
+
+.rtt.visible {
+    display: inline;
+}
+
+.rtt:after {
+    content: ' ms';
+}
+
 ul {
     margin: 1rem;
     padding: 0;
